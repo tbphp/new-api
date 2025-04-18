@@ -1100,16 +1100,36 @@ const LogsTable = () => {
               >
                 {t('消耗额度')}: {renderQuota(stat.quota)}
               </Tag>
-              <Tag
-                color='pink'
-                size='large'
-                style={{
-                  padding: 15,
-                  borderRadius: '8px',
-                  fontWeight: 500,
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                }}
-              >
+              <Tag color='red' size='large' style={{ 
+                padding: 15, 
+                borderRadius: '8px', 
+                fontWeight: 500,
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+               }}>
+                Total tokens: {stat.total_tokens || 0}
+              </Tag>
+              <Tag color='green' size='large' style={{ 
+                padding: 15, 
+                borderRadius: '8px', 
+                fontWeight: 500,
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+               }}>
+                Input Tokens: {stat.prompt_tokens || 0}
+              </Tag>
+              <Tag color='cyan' size='large' style={{ 
+                padding: 15, 
+                borderRadius: '8px', 
+                fontWeight: 500,
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+               }}>
+                Output tokens: {stat.completion_tokens || 0}
+              </Tag>
+              <Tag color='pink' size='large' style={{ 
+                padding: 15, 
+                borderRadius: '8px', 
+                fontWeight: 500,
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+              }}>
                 RPM: {stat.rpm}
               </Tag>
               <Tag
@@ -1130,50 +1150,27 @@ const LogsTable = () => {
         </Header>
         <Form layout='horizontal' style={{ marginTop: 10 }}>
           <>
-            <Form.Section>
-              <div style={{ marginBottom: 10 }}>
-                {styleState.isMobile ? (
-                  <div>
-                    <Form.DatePicker
-                      field='start_timestamp'
-                      label={t('起始时间')}
-                      style={{ width: 272 }}
-                      initValue={start_timestamp}
-                      type='dateTime'
-                      onChange={(value) => {
-                        console.log(value);
-                        handleInputChange(value, 'start_timestamp');
-                      }}
-                    />
-                    <Form.DatePicker
-                      field='end_timestamp'
-                      fluid
-                      label={t('结束时间')}
-                      style={{ width: 272 }}
-                      initValue={end_timestamp}
-                      type='dateTime'
-                      onChange={(value) =>
-                        handleInputChange(value, 'end_timestamp')
-                      }
-                    />
-                  </div>
-                ) : (
-                  <Form.DatePicker
-                    field='range_timestamp'
-                    label={t('时间范围')}
-                    initValue={[start_timestamp, end_timestamp]}
-                    type='dateTimeRange'
-                    name='range_timestamp'
-                    onChange={(value) => {
-                      if (Array.isArray(value) && value.length === 2) {
-                        handleInputChange(value[0], 'start_timestamp');
-                        handleInputChange(value[1], 'end_timestamp');
-                      }
-                    }}
-                  />
-                )}
-              </div>
-            </Form.Section>
+            <Form.DatePicker
+              field='start_timestamp'
+              label={t('起始时间')}
+              style={{ width: 200 }}
+              initValue={start_timestamp}
+              type='dateTime'
+              onChange={(value) => {
+                console.log(value);
+                handleInputChange(value, 'start_timestamp')
+              }}
+            />
+            <Form.DatePicker
+              field='end_timestamp'
+              fluid
+              label={t('结束时间')}
+              style={{ width: 200 }}
+              initValue={end_timestamp}
+              type='dateTime'
+              onChange={(value) => handleInputChange(value, 'end_timestamp')}
+            />
+            <div class='semi-form-section' style={{ marginTop: 10}}></div>
             <Form.Input
               field='token_name'
               label={t('令牌名称')}
