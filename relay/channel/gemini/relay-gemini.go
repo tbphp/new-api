@@ -42,13 +42,13 @@ func CovertGemini2OpenAI(textRequest dto.GeneralOpenAIRequest, info *relaycommon
 	}
 
 	if model_setting.GetGeminiSettings().ThinkingAdapterEnabled {
-		if strings.HasSuffix(info.OriginModelName, "-thinking") {
+		if strings.HasSuffix(info.UpstreamModelName, "-thinking") {
 			budgetTokens := model_setting.GetGeminiSettings().ThinkingAdapterBudgetTokensPercentage * float64(geminiRequest.GenerationConfig.MaxOutputTokens)
 			if budgetTokens == 0 || budgetTokens > 24576 {
 				budgetTokens = 24576
 			}
 			geminiRequest.GenerationConfig.ThinkingConfig.SetThinkingBudget(int(budgetTokens))
-		} else if strings.HasSuffix(info.OriginModelName, "-nothinking") {
+		} else if strings.HasSuffix(info.UpstreamModelName, "-nothinking") {
 			geminiRequest.GenerationConfig.ThinkingConfig.SetThinkingBudget(0)
 		}
 	}

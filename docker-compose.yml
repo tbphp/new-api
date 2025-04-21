@@ -5,20 +5,20 @@ services:
     container_name: new-api
     restart: always
     command: --log-dir /app/logs
-    # ports:
-    #   - "3000:3000"
+    ports:
+      - "3000:3000"
     volumes:
       - ./data:/data
       - ./logs:/app/logs
     environment:
       # - SQL_DSN=root:123456@tcp(mysql:3306)/new-api  # Point to the mysql service
       - REDIS_CONN_STRING=redis://redis:6379
-      - STREAMING_TIMEOUT=9999
+      - STREAMING_TIMEOUT=10000
       - MEMORY_CACHE_ENABLED=true
       - SYNC_FREQUENCY=60
       - FORCE_STREAM_OPTION=true
-      - ENFORCE_INCLUDE_USAGE=true
-      - CHANNEL_UPDATE_FREQUENCY=60
+      - ENFORCE_INCLUDE_USAGE=false
+      - USER_CONTENT_REQUEST_TIMEOUT=10000
       - GLOBAL_API_RATE_LIMIT=10000
       - GLOBAL_WEB_RATE_LIMIT=10000
       - SESSION_SECRET=a05gdnvzzxyPIgp3 # 修改为随机字符串
