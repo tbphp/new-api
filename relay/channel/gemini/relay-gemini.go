@@ -48,7 +48,7 @@ func CovertGemini2OpenAI(textRequest dto.GeneralOpenAIRequest, info *relaycommon
 				ThinkingBudget:  common.GetPointer(int(budgetTokens)),
 				IncludeThoughts: true,
 			}
-		} else if strings.HasSuffix(info.OriginModelName, "-nothinking") {
+		} else if strings.HasSuffix(info.UpstreamModelName, "-nothinking") {
 			geminiRequest.GenerationConfig.ThinkingConfig = &GeminiThinkingConfig{
 				ThinkingBudget: common.GetPointer(0),
 			}
