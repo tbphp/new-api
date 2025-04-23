@@ -22,7 +22,6 @@ services:
       - GLOBAL_API_RATE_LIMIT=10000
       - GLOBAL_WEB_RATE_LIMIT=10000
       - RELAY_TIMEOUT=10000
-      - SESSION_SECRET=a05gdnvzzxyPIgp3
       - TZ=Asia/Shanghai
     healthcheck:
       test:
