@@ -98,6 +98,9 @@ func RecordConsumeLog(c *gin.Context, userId int, channelId int, promptTokens in
 	}
 	username := c.GetString("username")
 	otherStr := common.MapToJsonStr(other)
+	if firstTimeMs < 0 {
+		firstTimeMs = 0
+	}
 	log := &Log{
 		UserId:           userId,
 		Username:         username,

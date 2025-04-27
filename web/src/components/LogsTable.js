@@ -503,7 +503,7 @@ const LogsTable = () => {
     },
     {
       key: COLUMN_KEYS.USE_TIME,
-      title: t('首字/用时/速度'),
+      title: t('类型/速度/用时/首字'),
       dataIndex: 'use_time',
       render: (text, record, index) => {
         if (record.is_stream) {
@@ -511,9 +511,9 @@ const LogsTable = () => {
             <>
               <Space>
                 {renderIsStream(record.is_stream)}
-                {renderFirstUseTime(record.first_time)}
-                {renderUseTime(text)}
                 {renderUseSpeed(record)}
+                {renderUseTime(text)}
+                {renderFirstUseTime(record.first_time)}
               </Space>
             </>
           );
@@ -522,6 +522,7 @@ const LogsTable = () => {
             <>
               <Space>
                 {renderIsStream(record.is_stream)}
+                {renderUseSpeed(record)}
                 {renderUseTime(text)}
               </Space>
             </>
