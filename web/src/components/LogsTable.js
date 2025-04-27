@@ -116,7 +116,7 @@ const LogsTable = () => {
     if (bool) {
       return (
         <Tag color='blue' size='large'>
-          {t('流')}
+          {t('流式')}
         </Tag>
       );
     } else {
@@ -129,7 +129,8 @@ const LogsTable = () => {
   }
 
   function renderUseTime(type) {
-    const time = parseInt(type);
+    let time = parseFloat(type) / 1000.0;
+    time = parseFloat(time.toFixed(2));
     if (time < 101) {
       return (
         <Tag color='green' size='large'>
@@ -156,7 +157,7 @@ const LogsTable = () => {
 
   function renderFirstUseTime(type) {
     let time = parseFloat(type) / 1000.0;
-    time = time.toFixed(1);
+    time = parseFloat(time.toFixed(2));
     if (time < 3) {
       return (
         <Tag color='green' size='large'>
@@ -179,6 +180,21 @@ const LogsTable = () => {
         </Tag>
       );
     }
+  }
+
+  function renderUseSpeed(record) {
+    let speed = '0.00';
+    let duration = record.use_time - record.first_time;
+    if (duration > 0 && record.completion_tokens > 0) {
+      speed = (record.completion_tokens / duration * 1000).toFixed(2);
+    }
+
+    return (
+      <Tag color='grey' size='large'>
+        {' '}
+        {parseFloat(speed)} t/s{' '}
+      </Tag>
+    );
   }
 
   function renderModelName(record) {
@@ -372,24 +388,12 @@ const LogsTable = () => {
       dataIndex: 'channel',
       className: isAdmin() ? 'tableShow' : 'tableHiddle',
       render: (text, record, index) => {
-        return isAdminUser ? (
-          record.type === 0 || record.type === 2 ? (
-            <div>
-              {
-                <Tooltip content={record.channel_name || '[未知]'}>
-                  <Tag
-                    color={colors[parseInt(text) % colors.length]}
-                    size='large'
-                  >
-                    {' '}
-                    {text}{' '}
-                  </Tag>
-                </Tooltip>
-              }
-            </div>
-          ) : (
-            <></>
-          )
+        return isAdminUser && (record.type === 0 || record.type === 2) ? (
+          <div>
+            <Tag color={colors[parseInt(text) % colors.length]} size='large'>
+              {text} - {record.channel_name || '[未知]'}
+            </Tag>
+          </div>
         ) : (
           <></>
         );
@@ -499,17 +503,17 @@ const LogsTable = () => {
     },
     {
       key: COLUMN_KEYS.USE_TIME,
-      title: t('用时/首字'),
+      title: t('首字/用时/速度'),
       dataIndex: 'use_time',
       render: (text, record, index) => {
         if (record.is_stream) {
-          let other = getLogOther(record.other);
           return (
             <>
               <Space>
-                {renderUseTime(text)}
-                {renderFirstUseTime(other?.frt)}
                 {renderIsStream(record.is_stream)}
+                {renderFirstUseTime(record.first_time)}
+                {renderUseTime(text)}
+                {renderUseSpeed(record)}
               </Space>
             </>
           );
@@ -517,8 +521,8 @@ const LogsTable = () => {
           return (
             <>
               <Space>
-                {renderUseTime(text)}
                 {renderIsStream(record.is_stream)}
+                {renderUseTime(text)}
               </Space>
             </>
           );
