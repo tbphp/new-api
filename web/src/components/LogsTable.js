@@ -762,7 +762,7 @@ const LogsTable = () => {
     username: '',
     token_name: '', // Default to empty string for "All" option
     model_name: '', // Default to empty string for "All" option
-    start_timestamp: null, // Default to null
+    start_timestamp: timestamp2string(getTodayStartTimestamp()),
     end_timestamp: null, // Default to null
     channel: '', // Default to empty string for "All" option (channel ID)
     group: '',
@@ -1219,6 +1219,7 @@ const LogsTable = () => {
               field='start_timestamp'
               label={t('起始时间')}
               style={{ width: 200 }}
+              initValue={start_timestamp}
               value={start_timestamp}
               placeholder={t('请选择起始时间')}
               type='dateTime'
