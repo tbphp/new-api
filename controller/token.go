@@ -8,6 +8,22 @@ import (
 	"strconv"
 )
 
+func GetAllTokenNames(c *gin.Context) {
+	names, err := model.GetAllTokenNames()
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "获取令牌名称失败: " + err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "获取令牌名称成功",
+		"data":    names,
+	})
+}
+
 func GetAllTokens(c *gin.Context) {
 	userId := c.GetInt("id")
 	p, _ := strconv.Atoi(c.Query("p"))

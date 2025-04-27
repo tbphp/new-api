@@ -620,3 +620,33 @@ func BatchSetChannelTag(c *gin.Context) {
 	})
 	return
 }
+
+// SimpleChannelDTO 定义只包含渠道 ID、名称和模型的 DTO
+type SimpleChannelDTO struct {
+	ID     int    `json:"id"`
+	Name   string `json:"name"`
+	Models string `json:"models"`
+}
+
+func GetChannelNames(c *gin.Context) {
+	var channels []SimpleChannelDTO
+	err := model.DB.Model(&model.Channel{}).
+		Where("status = ?", common.ChannelStatusEnabled).
+		Select("id, name, models").
+		Find(&channels).Error
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": err.Error(),
+			"data":    nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "获取渠道名称成功",
+		"data":    channels,
+	})
+}
