@@ -26,6 +26,7 @@ type Log struct {
 	PromptTokens     int    `json:"prompt_tokens" gorm:"default:0"`
 	CompletionTokens int    `json:"completion_tokens" gorm:"default:0"`
 	UseTime          int    `json:"use_time" gorm:"default:0"`
+	FirstTime        int    `json:"first_time" gorm:"default:0"`
 	IsStream         bool   `json:"is_stream" gorm:"default:false"`
 	ChannelId        int    `json:"channel" gorm:"index"`
 	ChannelName      string `json:"channel_name" gorm:"->"`
@@ -89,7 +90,7 @@ func RecordLog(userId int, logType int, content string) {
 }
 
 func RecordConsumeLog(c *gin.Context, userId int, channelId int, promptTokens int, completionTokens int,
-	modelName string, tokenName string, quota int, content string, tokenId int, userQuota int, useTimeSeconds int,
+	modelName string, tokenName string, quota int, content string, tokenId int, userQuota int, useTimeMs int, firstTimeMs int,
 	isStream bool, group string, other map[string]interface{}) {
 	common.LogInfo(c, fmt.Sprintf("record consume log: userId=%d, 用户调用前余额=%d, channelId=%d, promptTokens=%d, completionTokens=%d, modelName=%s, tokenName=%s, quota=%d, content=%s", userId, userQuota, channelId, promptTokens, completionTokens, modelName, tokenName, quota, content))
 	if !common.LogConsumeEnabled {
@@ -110,7 +111,8 @@ func RecordConsumeLog(c *gin.Context, userId int, channelId int, promptTokens in
 		Quota:            quota,
 		ChannelId:        channelId,
 		TokenId:          tokenId,
-		UseTime:          useTimeSeconds,
+		UseTime:          useTimeMs,
+		FirstTime:        firstTimeMs,
 		IsStream:         isStream,
 		Group:            group,
 		Other:            otherStr,
