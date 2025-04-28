@@ -103,9 +103,15 @@ const LogsTable = () => {
             {t('系统')}
           </Tag>
         );
+      case 5:
+        return (
+          <Tag color='red' size='large'>
+            {t('错误')}
+          </Tag>
+        );
       default:
         return (
-          <Tag color='black' size='large'>
+          <Tag color='grey' size='large'>
             {t('未知')}
           </Tag>
         );
@@ -116,7 +122,7 @@ const LogsTable = () => {
     if (bool) {
       return (
         <Tag color='blue' size='large'>
-          {t('流式')}
+          {t('流')}
         </Tag>
       );
     } else {
@@ -129,8 +135,7 @@ const LogsTable = () => {
   }
 
   function renderUseTime(type) {
-    let time = parseFloat(type) / 1000.0;
-    time = parseFloat(time.toFixed(2));
+    const time = parseInt(type);
     if (time < 101) {
       return (
         <Tag color='green' size='large'>
@@ -157,7 +162,7 @@ const LogsTable = () => {
 
   function renderFirstUseTime(type) {
     let time = parseFloat(type) / 1000.0;
-    time = parseFloat(time.toFixed(2));
+    time = time.toFixed(1);
     if (time < 3) {
       return (
         <Tag color='green' size='large'>
@@ -180,21 +185,6 @@ const LogsTable = () => {
         </Tag>
       );
     }
-  }
-
-  function renderUseSpeed(record) {
-    let speed = '0.00';
-    let duration = record.use_time - record.first_time;
-    if (duration > 0 && record.completion_tokens > 0) {
-      speed = (record.completion_tokens / duration * 1000).toFixed(2);
-    }
-
-    return (
-      <Tag color='grey' size='large'>
-        {' '}
-        {parseFloat(speed)} t/s{' '}
-      </Tag>
-    );
   }
 
   function renderModelName(record) {
@@ -388,12 +378,24 @@ const LogsTable = () => {
       dataIndex: 'channel',
       className: isAdmin() ? 'tableShow' : 'tableHiddle',
       render: (text, record, index) => {
-        return isAdminUser && (record.type === 0 || record.type === 2) ? (
-          <div>
-            <Tag color={colors[parseInt(text) % colors.length]} size='large'>
-              {text} - {record.channel_name || '[未知]'}
-            </Tag>
-          </div>
+        return isAdminUser ? (
+          record.type === 0 || record.type === 2 || record.type === 5 ? (
+            <div>
+              {
+                <Tooltip content={record.channel_name || '[未知]'}>
+                  <Tag
+                    color={colors[parseInt(text) % colors.length]}
+                    size='large'
+                  >
+                    {' '}
+                    {text}{' '}
+                  </Tag>
+                </Tooltip>
+              }
+            </div>
+          ) : (
+            <></>
+          )
         ) : (
           <></>
         );
@@ -430,7 +432,7 @@ const LogsTable = () => {
       title: t('令牌'),
       dataIndex: 'token_name',
       render: (text, record, index) => {
-        return record.type === 0 || record.type === 2 ? (
+        return record.type === 0 || record.type === 2 || record.type === 5 ? (
           <div>
             <Tag
               color='grey'
@@ -454,7 +456,7 @@ const LogsTable = () => {
       title: t('分组'),
       dataIndex: 'group',
       render: (text, record, index) => {
-        if (record.type === 0 || record.type === 2) {
+        if (record.type === 0 || record.type === 2 || record.type === 5) {
           if (record.group) {
             return <>{renderGroup(record.group)}</>;
           } else {
@@ -494,7 +496,7 @@ const LogsTable = () => {
       title: t('模型'),
       dataIndex: 'model_name',
       render: (text, record, index) => {
-        return record.type === 0 || record.type === 2 ? (
+        return record.type === 0 || record.type === 2 || record.type === 5 ? (
           <>{renderModelName(record)}</>
         ) : (
           <></>
@@ -503,17 +505,17 @@ const LogsTable = () => {
     },
     {
       key: COLUMN_KEYS.USE_TIME,
-      title: t('类型/速度/用时/首字'),
+      title: t('用时/首字'),
       dataIndex: 'use_time',
       render: (text, record, index) => {
         if (record.is_stream) {
+          let other = getLogOther(record.other);
           return (
             <>
               <Space>
-                {renderIsStream(record.is_stream)}
-                {renderUseSpeed(record)}
                 {renderUseTime(text)}
-                {renderFirstUseTime(record.first_time)}
+                {renderFirstUseTime(other?.frt)}
+                {renderIsStream(record.is_stream)}
               </Space>
             </>
           );
@@ -521,9 +523,8 @@ const LogsTable = () => {
           return (
             <>
               <Space>
-                {renderIsStream(record.is_stream)}
-                {renderUseSpeed(record)}
                 {renderUseTime(text)}
+                {renderIsStream(record.is_stream)}
               </Space>
             </>
           );
@@ -535,7 +536,7 @@ const LogsTable = () => {
       title: t('提示'),
       dataIndex: 'prompt_tokens',
       render: (text, record, index) => {
-        return record.type === 0 || record.type === 2 ? (
+        return record.type === 0 || record.type === 2 || record.type === 5 ? (
           <>{<span> {text} </span>}</>
         ) : (
           <></>
@@ -548,7 +549,7 @@ const LogsTable = () => {
       dataIndex: 'completion_tokens',
       render: (text, record, index) => {
         return parseInt(text) > 0 &&
-          (record.type === 0 || record.type === 2) ? (
+          (record.type === 0 || record.type === 2 || record.type === 5) ? (
           <>{<span> {text} </span>}</>
         ) : (
           <></>
@@ -560,7 +561,7 @@ const LogsTable = () => {
       title: t('花费'),
       dataIndex: 'quota',
       render: (text, record, index) => {
-        return record.type === 0 || record.type === 2 ? (
+        return record.type === 0 || record.type === 2 || record.type === 5 ? (
           <>{renderQuota(text, 6)}</>
         ) : (
           <></>
@@ -750,21 +751,15 @@ const LogsTable = () => {
   const [pageSize, setPageSize] = useState(ITEMS_PER_PAGE);
   const [logType, setLogType] = useState(0);
   const isAdminUser = isAdmin();
-
-  // State for dropdown options
-  const [tokenNamesOptions, setTokenNamesOptions] = useState([{ value: '', label: t('全部') }]);
-  const [channelOptions, setChannelOptions] = useState([{ value: '', label: t('全部') }]);
-  const [modelNamesOptions, setModelNamesOptions] = useState([{ value: '', label: t('全部') }]);
-
-
-  // Initialize inputs with null for timestamps and empty strings for selects
+  let now = new Date();
+  // 初始化start_timestamp为今天0点
   const [inputs, setInputs] = useState({
     username: '',
-    token_name: '', // Default to empty string for "All" option
-    model_name: '', // Default to empty string for "All" option
+    token_name: '',
+    model_name: '',
     start_timestamp: timestamp2string(getTodayStartTimestamp()),
-    end_timestamp: null, // Default to null
-    channel: '', // Default to empty string for "All" option (channel ID)
+    end_timestamp: timestamp2string(now.getTime() / 1000 + 3600),
+    channel: '',
     group: '',
   });
   const {
@@ -783,7 +778,7 @@ const LogsTable = () => {
   });
 
   const handleInputChange = (value, name) => {
-    setInputs((inputs) => ({ ...inputs, [name]: value || '' }));
+    setInputs((inputs) => ({ ...inputs, [name]: value }));
   };
 
   const getLogSelfStat = async () => {
@@ -997,9 +992,10 @@ const LogsTable = () => {
             other?.group_ratio,
             other?.cache_tokens || 0,
             other?.cache_ratio || 1.0,
-          other?.image || false,
-              other?.image_ratio || 0,
-              other?.image_output || 0,);
+            other?.image || false,
+            other?.image_ratio || 0,
+            other?.image_output || 0,
+          );
         }
         expandDataLocal.push({
           key: t('计费过程'),
@@ -1077,59 +1073,6 @@ const LogsTable = () => {
     }
   };
 
-  // Fetch options for dropdowns on component mount
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true); // Use main loading state or a dedicated one
-      try {
-        // Fetch token names
-        const tokenRes = await API.get('/api/token/names');
-        if (tokenRes.data.success) {
-          const tokenOptions = tokenRes.data.data.map(name => ({ value: name, label: name }));
-          setTokenNamesOptions([{ value: '', label: t('全部') }, ...tokenOptions]);
-        } else {
-          showError(`Failed to fetch token names: ${tokenRes.data.message}`);
-        }
-
-        // Fetch channels and extract model names
-        const channelRes = await API.get('/api/channel/names');
-        if (channelRes.data.success) {
-          const channels = channelRes.data.data || [];
-          const channelOpts = channels.map(ch => ({ value: ch.id, label: ch.name }));
-          setChannelOptions([{ value: '', label: t('全部') }, ...channelOpts]);
-
-          // Extract, deduplicate, and sort model names from all channels
-          let allModels = new Set();
-          channels.forEach(ch => {
-            // Check if ch.models is a non-empty string before splitting
-            if (typeof ch.models === 'string' && ch.models.trim() !== '') {
-              const modelsArray = ch.models.split(',');
-              modelsArray.forEach(model => {
-                const trimmedModel = model.trim(); // Trim whitespace from each model name
-                if (trimmedModel) { // Ensure the trimmed model name is not empty
-                  allModels.add(trimmedModel);
-                }
-              });
-            }
-          });
-          const sortedModels = Array.from(allModels).sort();
-          const modelOpts = sortedModels.map(model => ({ value: model, label: model }));
-          setModelNamesOptions([{ value: '', label: t('全部') }, ...modelOpts]);
-
-        } else {
-          showError(`Failed to fetch channels: ${channelRes.data.message}`);
-        }
-      } catch (error) {
-        showError(`Error fetching dropdown data: ${error.message}`);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [t]); // Add t to dependency array if used inside useEffect
-
-
   useEffect(() => {
     const localPageSize =
       parseInt(localStorage.getItem('page-size')) || ITEMS_PER_PAGE;
@@ -1165,36 +1108,16 @@ const LogsTable = () => {
               >
                 {t('消耗额度')}: {renderQuota(stat.quota)}
               </Tag>
-              <Tag color='red' size='large' style={{ 
-                padding: 15, 
-                borderRadius: '8px', 
-                fontWeight: 500,
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
-               }}>
-                总计: {stat.total_tokens || 0}
-              </Tag>
-              <Tag color='green' size='large' style={{ 
-                padding: 15, 
-                borderRadius: '8px', 
-                fontWeight: 500,
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
-               }}>
-                提示: {stat.prompt_tokens || 0}
-              </Tag>
-              <Tag color='cyan' size='large' style={{ 
-                padding: 15, 
-                borderRadius: '8px', 
-                fontWeight: 500,
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
-               }}>
-                补全: {stat.completion_tokens || 0}
-              </Tag>
-              <Tag color='pink' size='large' style={{ 
-                padding: 15, 
-                borderRadius: '8px', 
-                fontWeight: 500,
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
-              }}>
+              <Tag
+                color='pink'
+                size='large'
+                style={{
+                  padding: 15,
+                  borderRadius: '8px',
+                  fontWeight: 500,
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                }}
+              >
                 RPM: {stat.rpm}
               </Tag>
               <Tag
@@ -1215,105 +1138,94 @@ const LogsTable = () => {
         </Header>
         <Form layout='horizontal' style={{ marginTop: 10 }}>
           <>
-            <Form.DatePicker
-              field='start_timestamp'
-              label={t('起始时间')}
-              style={{ width: 200 }}
-              initValue={start_timestamp}
-              value={start_timestamp}
-              placeholder={t('请选择起始时间')}
-              type='dateTime'
-              onChange={(value) => handleInputChange(value, 'start_timestamp')}
-            />
-            <Form.DatePicker
-              field='end_timestamp'
-              fluid
-              label={t('结束时间')}
-              style={{ width: 200 }}
-              value={end_timestamp}
-              placeholder={t('请选择结束时间')}
-              type='dateTime'
-              onChange={(value) => handleInputChange(value, 'end_timestamp')}
-            />
-            <Form.Select
-              defaultValue='0'
-              label={t('类型')}
-              placeholder={t('全部')}
-              style={{ width: 120 }}
-              onChange={(value) => {
-                setLogType(parseInt(value));
-                loadLogs(0, pageSize, parseInt(value));
-              }}
-            >
-              <Select.Option value='0'>{t('全部')}</Select.Option>
-              <Select.Option value='1'>{t('充值')}</Select.Option>
-              <Select.Option value='2'>{t('消费')}</Select.Option>
-              <Select.Option value='3'>{t('管理')}</Select.Option>
-              <Select.Option value='4'>{t('系统')}</Select.Option>
-            </Form.Select>
-            <Button
-              theme='light'
-              type='tertiary'
-              icon={<IconSetting />}
-              onClick={() => setShowColumnSelector(true)}
-              style={{ marginLeft: 8, marginTop: 24 }}
-            >
-              {t('列设置')}
-            </Button>
-            <div className='semi-form-section' style={{ marginTop: 10}}></div> {/* Use className */}
-            <Form.Select
-              style={{ width: 140 }}
+            <Form.Section>
+              <div style={{ marginBottom: 10 }}>
+                {styleState.isMobile ? (
+                  <div>
+                    <Form.DatePicker
+                      field='start_timestamp'
+                      label={t('起始时间')}
+                      style={{ width: 272 }}
+                      initValue={start_timestamp}
+                      type='dateTime'
+                      onChange={(value) => {
+                        console.log(value);
+                        handleInputChange(value, 'start_timestamp');
+                      }}
+                    />
+                    <Form.DatePicker
+                      field='end_timestamp'
+                      fluid
+                      label={t('结束时间')}
+                      style={{ width: 272 }}
+                      initValue={end_timestamp}
+                      type='dateTime'
+                      onChange={(value) =>
+                        handleInputChange(value, 'end_timestamp')
+                      }
+                    />
+                  </div>
+                ) : (
+                  <Form.DatePicker
+                    field='range_timestamp'
+                    label={t('时间范围')}
+                    initValue={[start_timestamp, end_timestamp]}
+                    type='dateTimeRange'
+                    name='range_timestamp'
+                    onChange={(value) => {
+                      if (Array.isArray(value) && value.length === 2) {
+                        handleInputChange(value[0], 'start_timestamp');
+                        handleInputChange(value[1], 'end_timestamp');
+                      }
+                    }}
+                  />
+                )}
+              </div>
+            </Form.Section>
+            <Form.Input
               field='token_name'
-              label={t('令牌')}
-              placeholder={t('全部')}
-              optionList={tokenNamesOptions}
-              defaultValue={''}
+              label={t('令牌名称')}
               value={token_name}
+              placeholder={t('可选值')}
+              name='token_name'
               onChange={(value) => handleInputChange(value, 'token_name')}
-              showClear
             />
-            {isAdminUser && (
-              <Form.Select
-                style={{ width: 160 }}
-                field='channel' // Field remains 'channel' as it sends the ID
-                label={t('渠道')} // Label changed to '渠道名称'
-                placeholder={t('全部')}
-                optionList={channelOptions}
-                value={channel} // Value is the channel ID from inputs state
-                onChange={(value) => handleInputChange(value, 'channel')}
-                showClear
-              />
-            )}
-            <Form.Select
-              style={{ width: 180 }}
+            <Form.Input
               field='model_name'
-              label={t('模型')}
-              placeholder={t('全部')}
-              optionList={modelNamesOptions}
+              label={t('模型名称')}
               value={model_name}
+              placeholder={t('可选值')}
+              name='model_name'
               onChange={(value) => handleInputChange(value, 'model_name')}
-              showClear
             />
-            {isAdminUser && (
-              <Form.Input
-                field='username'
-                label={t('用户名称')}
-                value={username}
-                placeholder={t('可选值')}
-                name='username'
-                onChange={(value) => handleInputChange(value, 'username')}
-                showClear
-              />
-            )}
-            <Form.Input // Keep Group as Input for now, or change if needed
+            <Form.Input
               field='group'
               label={t('分组')}
               value={group}
               placeholder={t('可选值')}
               name='group'
               onChange={(value) => handleInputChange(value, 'group')}
-              showClear
             />
+            {isAdminUser && (
+              <>
+                <Form.Input
+                  field='channel'
+                  label={t('渠道 ID')}
+                  value={channel}
+                  placeholder={t('可选值')}
+                  name='channel'
+                  onChange={(value) => handleInputChange(value, 'channel')}
+                />
+                <Form.Input
+                  field='username'
+                  label={t('用户名称')}
+                  value={username}
+                  placeholder={t('可选值')}
+                  name='username'
+                  onChange={(value) => handleInputChange(value, 'username')}
+                />
+              </>
+            )}
             <Button
               label={t('查询')}
               type='primary'
@@ -1328,6 +1240,32 @@ const LogsTable = () => {
             <Form.Section></Form.Section>
           </>
         </Form>
+        <div style={{ marginTop: 10 }}>
+          <Select
+            defaultValue='0'
+            style={{ width: 120 }}
+            onChange={(value) => {
+              setLogType(parseInt(value));
+              loadLogs(0, pageSize, parseInt(value));
+            }}
+          >
+            <Select.Option value='0'>{t('全部')}</Select.Option>
+            <Select.Option value='1'>{t('充值')}</Select.Option>
+            <Select.Option value='2'>{t('消费')}</Select.Option>
+            <Select.Option value='3'>{t('管理')}</Select.Option>
+            <Select.Option value='4'>{t('系统')}</Select.Option>
+            <Select.Option value='5'>{t('错误')}</Select.Option>
+          </Select>
+          <Button
+            theme='light'
+            type='tertiary'
+            icon={<IconSetting />}
+            onClick={() => setShowColumnSelector(true)}
+            style={{ marginLeft: 8 }}
+          >
+            {t('列设置')}
+          </Button>
+        </div>
         <Table
           style={{ marginTop: 5 }}
           columns={getVisibleColumns()}
