@@ -246,23 +246,23 @@ const SiderBar = () => {
     [isAdmin(), t],
   );
 
-  const chatMenuItems = useMemo(
-    () => [
-      {
-        text: 'Playground',
-        itemKey: 'playground',
-        to: '/playground',
-        icon: <IconCommentStroked />,
-      },
-      {
-        text: t('聊天'),
-        itemKey: 'chat',
-        items: chatItems,
-        icon: <IconComment />,
-      },
-    ],
-    [chatItems, t],
-  );
+  // const chatMenuItems = useMemo(
+  //   () => [
+  //     {
+  //       text: 'Playground',
+  //       itemKey: 'playground',
+  //       to: '/playground',
+  //       icon: <IconCommentStroked />,
+  //     },
+  //     {
+  //       text: t('聊天'),
+  //       itemKey: 'chat',
+  //       items: chatItems,
+  //       icon: <IconComment />,
+  //     },
+  //   ],
+  //   [chatItems, t],
+  // );
 
   // Function to update router map with chat routes
   const updateRouterMapWithChats = (chats) => {
@@ -426,7 +426,7 @@ const SiderBar = () => {
         }}
       >
         {/* Chat Section - Only show if there are chat items */}
-        {chatMenuItems.map((item) => {
+        {/* {chatMenuItems.map((item) => {
           if (item.items && item.items.length > 0) {
             return (
               <Nav.Sub
@@ -458,7 +458,7 @@ const SiderBar = () => {
               />
             );
           }
-        })}
+        })} */}
 
         {/* Divider */}
         <Divider style={dividerStyle} />
