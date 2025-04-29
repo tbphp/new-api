@@ -190,9 +190,8 @@ const LogsTable = () => {
 
   function renderUseSpeed(record) {
     let speed = '0.00';
-    let duration = record.use_time - record.first_time;
-    if (duration > 0 && record.completion_tokens > 0) {
-      speed = (record.completion_tokens / duration * 1000).toFixed(2);
+    if ( record.use_time > 0 && record.completion_tokens > 0) {
+      speed = (record.completion_tokens /  record.use_time * 1000).toFixed(2);
     }
 
     return (
