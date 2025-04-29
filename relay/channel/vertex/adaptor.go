@@ -13,6 +13,7 @@ import (
 	"one-api/relay/channel/gemini"
 	"one-api/relay/channel/openai"
 	relaycommon "one-api/relay/common"
+	"one-api/setting/model_setting"
 	"strings"
 )
 
@@ -77,6 +78,15 @@ func (a *Adaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, error) {
 	a.AccountCredentials = *adc
 	suffix := ""
 	if a.RequestMode == RequestModeGemini {
+		if model_setting.GetGeminiSettings().ThinkingAdapterEnabled {
+			// suffix -thinking and -nothinking
+			if strings.HasSuffix(info.UpstreamModelName, "-thinking") {
+				info.UpstreamModelName = strings.TrimSuffix(info.UpstreamModelName, "-thinking")
+			} else if strings.HasSuffix(info.UpstreamModelName, "-nothinking") {
+				info.UpstreamModelName = strings.TrimSuffix(info.UpstreamModelName, "-nothinking")
+			}
+		}
+
 		if info.IsStream {
 			suffix = "streamGenerateContent?alt=sse"
 		} else {
