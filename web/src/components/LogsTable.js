@@ -759,11 +759,6 @@ const LogsTable = () => {
   const [pageSize, setPageSize] = useState(ITEMS_PER_PAGE);
   const [logType, setLogType] = useState(0);
   const isAdminUser = isAdmin();
-
-  const [tokenNamesOptions, setTokenNamesOptions] = useState([{ value: '', label: t('全部') }]);
-  const [channelOptions, setChannelOptions] = useState([{ value: '', label: t('全部') }]);
-  const [modelNamesOptions, setModelNamesOptions] = useState([{ value: '', label: t('全部') }]);
-
   let now = new Date();
   // 初始化start_timestamp为今天0点
   const [inputs, setInputs] = useState({
@@ -1085,56 +1080,6 @@ const LogsTable = () => {
       Modal.error({ title: t('无法复制到剪贴板，请手动复制'), content: text });
     }
   };
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true); // Use main loading state or a dedicated one
-      try {
-        // Fetch token names
-        const tokenRes = await API.get('/api/token/names');
-        if (tokenRes.data.success) {
-          const tokenOptions = tokenRes.data.data.map(name => ({ value: name, label: name }));
-          setTokenNamesOptions([{ value: '', label: t('全部') }, ...tokenOptions]);
-        } else {
-          showError(`Failed to fetch token names: ${tokenRes.data.message}`);
-        }
-
-        // Fetch channels and extract model names
-        const channelRes = await API.get('/api/channel/names');
-        if (channelRes.data.success) {
-          const channels = channelRes.data.data || [];
-          const channelOpts = channels.map(ch => ({ value: ch.id, label: ch.name }));
-          setChannelOptions([{ value: '', label: t('全部') }, ...channelOpts]);
-
-          // Extract, deduplicate, and sort model names from all channels
-          let allModels = new Set();
-          channels.forEach(ch => {
-            // Check if ch.models is a non-empty string before splitting
-            if (typeof ch.models === 'string' && ch.models.trim() !== '') {
-              const modelsArray = ch.models.split(',');
-              modelsArray.forEach(model => {
-                const trimmedModel = model.trim(); // Trim whitespace from each model name
-                if (trimmedModel) { // Ensure the trimmed model name is not empty
-                  allModels.add(trimmedModel);
-                }
-              });
-            }
-          });
-          const sortedModels = Array.from(allModels).sort();
-          const modelOpts = sortedModels.map(model => ({ value: model, label: model }));
-          setModelNamesOptions([{ value: '', label: t('全部') }, ...modelOpts]);
-
-        } else {
-          showError(`Failed to fetch channels: ${channelRes.data.message}`);
-        }
-      } catch (error) {
-        showError(`Error fetching dropdown data: ${error.message}`);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [t]);
 
   useEffect(() => {
     const localPageSize =
@@ -1241,86 +1186,51 @@ const LogsTable = () => {
               type='dateTime'
               onChange={(value) => handleInputChange(value, 'end_timestamp')}
             />
-            <Form.Select
-              defaultValue='0'
-              label={t('类型')}
-              placeholder={t('全部')}
-              style={{ width: 120 }}
-              onChange={(value) => {
-                setLogType(parseInt(value));
-                loadLogs(0, pageSize, parseInt(value));
-              }}
-            >
-              <Select.Option value='0'>{t('全部')}</Select.Option>
-              <Select.Option value='1'>{t('充值')}</Select.Option>
-              <Select.Option value='2'>{t('消费')}</Select.Option>
-              <Select.Option value='3'>{t('管理')}</Select.Option>
-              <Select.Option value='4'>{t('系统')}</Select.Option>
-              <Select.Option value='5'>{t('错误')}</Select.Option>
-            </Form.Select>
-            <Button
-              theme='light'
-              type='tertiary'
-              icon={<IconSetting />}
-              onClick={() => setShowColumnSelector(true)}
-              style={{ marginLeft: 8, marginTop: 24 }}
-            >
-              {t('列设置')}
-            </Button>
-            <div className='semi-form-section' style={{ marginTop: 10}}></div> {/* Use className */}
-            <Form.Select
-              style={{ width: 140 }}
+            <div class='semi-form-section' style={{ marginTop: 10}}></div>
+            <Form.Input
               field='token_name'
-              label={t('令牌')}
-              placeholder={t('全部')}
-              optionList={tokenNamesOptions}
-              defaultValue={''}
+              label={t('令牌名称')}
               value={token_name}
+              placeholder={t('可选值')}
+              name='token_name'
               onChange={(value) => handleInputChange(value, 'token_name')}
-              showClear
             />
-            {isAdminUser && (
-              <Form.Select
-                style={{ width: 160 }}
-                field='channel' // Field remains 'channel' as it sends the ID
-                label={t('渠道')} // Label changed to '渠道名称'
-                placeholder={t('全部')}
-                optionList={channelOptions}
-                value={channel} // Value is the channel ID from inputs state
-                onChange={(value) => handleInputChange(value, 'channel')}
-                showClear
-              />
-            )}
-            <Form.Select
-              style={{ width: 180 }}
+            <Form.Input
               field='model_name'
-              label={t('模型')}
-              placeholder={t('全部')}
-              optionList={modelNamesOptions}
+              label={t('模型名称')}
               value={model_name}
+              placeholder={t('可选值')}
+              name='model_name'
               onChange={(value) => handleInputChange(value, 'model_name')}
-              showClear
             />
-            {isAdminUser && (
-              <Form.Input
-                field='username'
-                label={t('用户名称')}
-                value={username}
-                placeholder={t('可选值')}
-                name='username'
-                onChange={(value) => handleInputChange(value, 'username')}
-                showClear
-              />
-            )}
-            <Form.Input // Keep Group as Input for now, or change if needed
+            <Form.Input
               field='group'
               label={t('分组')}
               value={group}
               placeholder={t('可选值')}
               name='group'
               onChange={(value) => handleInputChange(value, 'group')}
-              showClear
             />
+            {isAdminUser && (
+              <>
+                <Form.Input
+                  field='channel'
+                  label={t('渠道 ID')}
+                  value={channel}
+                  placeholder={t('可选值')}
+                  name='channel'
+                  onChange={(value) => handleInputChange(value, 'channel')}
+                />
+                <Form.Input
+                  field='username'
+                  label={t('用户名称')}
+                  value={username}
+                  placeholder={t('可选值')}
+                  name='username'
+                  onChange={(value) => handleInputChange(value, 'username')}
+                />
+              </>
+            )}
             <Button
               label={t('查询')}
               type='primary'
@@ -1335,6 +1245,32 @@ const LogsTable = () => {
             <Form.Section></Form.Section>
           </>
         </Form>
+        <div style={{ marginTop: 10 }}>
+          <Select
+            defaultValue='0'
+            style={{ width: 120 }}
+            onChange={(value) => {
+              setLogType(parseInt(value));
+              loadLogs(0, pageSize, parseInt(value));
+            }}
+          >
+            <Select.Option value='0'>{t('全部')}</Select.Option>
+            <Select.Option value='1'>{t('充值')}</Select.Option>
+            <Select.Option value='2'>{t('消费')}</Select.Option>
+            <Select.Option value='3'>{t('管理')}</Select.Option>
+            <Select.Option value='4'>{t('系统')}</Select.Option>
+            <Select.Option value='5'>{t('错误')}</Select.Option>
+          </Select>
+          <Button
+            theme='light'
+            type='tertiary'
+            icon={<IconSetting />}
+            onClick={() => setShowColumnSelector(true)}
+            style={{ marginLeft: 8 }}
+          >
+            {t('列设置')}
+          </Button>
+        </div>
         <Table
           style={{ marginTop: 5 }}
           columns={getVisibleColumns()}
