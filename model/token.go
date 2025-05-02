@@ -320,12 +320,3 @@ func decreaseTokenQuota(id int, quota int) (err error) {
 	).Error
 	return err
 }
-
-func GetAllTokenNames() ([]string, error) {
-	var names []string
-	result := DB.Model(&Token{}).Distinct("name").Pluck("name", &names)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return names, nil
-}
