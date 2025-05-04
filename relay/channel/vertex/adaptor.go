@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"one-api/dto"
@@ -12,9 +11,12 @@ import (
 	"one-api/relay/channel/claude"
 	"one-api/relay/channel/gemini"
 	"one-api/relay/channel/openai"
+	"one-api/setting/model_setting"
 	relaycommon "one-api/relay/common"
 	"one-api/setting/model_setting"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -171,6 +173,11 @@ func (a *Adaptor) ConvertRerankRequest(c *gin.Context, relayMode int, request dt
 
 func (a *Adaptor) ConvertEmbeddingRequest(c *gin.Context, info *relaycommon.RelayInfo, request dto.EmbeddingRequest) (any, error) {
 	//TODO implement me
+	return nil, errors.New("not implemented")
+}
+
+func (a *Adaptor) ConvertOpenAIResponsesRequest(c *gin.Context, info *relaycommon.RelayInfo, request dto.OpenAIResponsesRequest) (any, error) {
+	// TODO implement me
 	return nil, errors.New("not implemented")
 }
 
