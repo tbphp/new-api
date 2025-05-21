@@ -72,9 +72,9 @@ func (a *Adaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, error) {
 
 	if model_setting.GetGeminiSettings().ThinkingAdapterEnabled {
 		// suffix -thinking and -nothinking
-		if strings.HasSuffix(info.UpstreamModelName, "-thinking") {
+		if strings.HasSuffix(info.OriginModelName, "-thinking") {
 			info.UpstreamModelName = strings.TrimSuffix(info.UpstreamModelName, "-thinking")
-		} else if strings.HasSuffix(info.UpstreamModelName, "-nothinking") {
+		} else if strings.HasSuffix(info.OriginModelName, "-nothinking") {
 			info.UpstreamModelName = strings.TrimSuffix(info.UpstreamModelName, "-nothinking")
 		}
 	}
