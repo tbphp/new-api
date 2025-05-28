@@ -97,8 +97,7 @@ func (a *Adaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, error) {
 		}
 		if region == "global" {
 			return fmt.Sprintf(
-				// "https://aiplatform.googleapis.com/v1/projects/%s/locations/global/publishers/google/models/%s:%s",
-				"https://deno.tbphp.net/v1/projects/%s/locations/global/publishers/google/models/%s:%s",
+				"https://aiplatform.googleapis.com/v1/projects/%s/locations/global/publishers/google/models/%s:%s",
 				adc.ProjectID,
 				info.UpstreamModelName,
 				suffix,
