@@ -512,7 +512,7 @@ const LogsTable = () => {
               <Space>
                 {renderUseSpeed(record)}
                 {renderUseTime(text)}
-                {renderFirstUseTime(record.first_time)}
+                {renderFirstUseTime(other?.frt)}
                 {renderIsStream(record.is_stream)}
               </Space>
             </>
