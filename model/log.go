@@ -28,6 +28,7 @@ type Log struct {
 	PromptTokens     int    `json:"prompt_tokens" gorm:"default:0"`
 	CompletionTokens int    `json:"completion_tokens" gorm:"default:0"`
 	UseTime          int    `json:"use_time" gorm:"default:0"`
+	FirstTime        int    `json:"first_time" gorm:"default:0"`
 	IsStream         bool   `json:"is_stream" gorm:"default:false"`
 	ChannelId        int    `json:"channel" gorm:"index"`
 	ChannelName      string `json:"channel_name" gorm:"->"`
@@ -137,14 +138,17 @@ func RecordErrorLog(c *gin.Context, userId int, channelId int, modelName string,
 }
 
 func RecordConsumeLog(c *gin.Context, userId int, channelId int, promptTokens int, completionTokens int,
-	modelName string, tokenName string, quota int, content string, tokenId int, userQuota int, useTimeSeconds int,
-	isStream bool, group string, other map[string]interface{}) {
+	modelName string, tokenName string, quota int, content string, tokenId int, userQuota int, useTimeMs int,
+	firstTimeMs int, isStream bool, group string, other map[string]interface{}) {
 	common.LogInfo(c, fmt.Sprintf("record consume log: userId=%d, 用户调用前余额=%d, channelId=%d, promptTokens=%d, completionTokens=%d, modelName=%s, tokenName=%s, quota=%d, content=%s", userId, userQuota, channelId, promptTokens, completionTokens, modelName, tokenName, quota, content))
 	if !common.LogConsumeEnabled {
 		return
 	}
 	username := c.GetString("username")
 	otherStr := common.MapToJsonStr(other)
+	if firstTimeMs < 0 {
+		firstTimeMs = 0
+	}
 	// 判断是否需要记录 IP
 	needRecordIp := false
 	if settingMap, err := GetUserSetting(userId, false); err == nil {
@@ -167,7 +171,8 @@ func RecordConsumeLog(c *gin.Context, userId int, channelId int, promptTokens in
 		Quota:            quota,
 		ChannelId:        channelId,
 		TokenId:          tokenId,
-		UseTime:          useTimeSeconds,
+		UseTime:          useTimeMs,
+		FirstTime:        firstTimeMs,
 		IsStream:         isStream,
 		Group:            group,
 		Ip: func() string {
@@ -309,6 +314,11 @@ type Stat struct {
 	Quota int `json:"quota"`
 	Rpm   int `json:"rpm"`
 	Tpm   int `json:"tpm"`
+}
+
+type TokenStat struct {
+	PromptTokens     int `json:"prompt_tokens"`
+	CompletionTokens int `json:"completion_tokens"`
 }
 
 func SumUsedQuota(logType int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string, channel int, group string) (stat Stat) {
