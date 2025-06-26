@@ -93,7 +93,7 @@ func RecordLog(userId int, logType int, content string) {
 	}
 }
 
-func RecordErrorLog(c *gin.Context, userId int, channelId int, modelName string, tokenName string, content string, tokenId int, useTimeSeconds int,
+func RecordErrorLog(c *gin.Context, userId int, channelId int, modelName string, tokenName string, content string, tokenId int, useTimeMs int,
 	isStream bool, group string, other map[string]interface{}) {
 	common.LogInfo(c, fmt.Sprintf("record error log: userId=%d, channelId=%d, modelName=%s, tokenName=%s, content=%s", userId, channelId, modelName, tokenName, content))
 	username := c.GetString("username")
@@ -120,7 +120,7 @@ func RecordErrorLog(c *gin.Context, userId int, channelId int, modelName string,
 		Quota:            0,
 		ChannelId:        channelId,
 		TokenId:          tokenId,
-		UseTime:          useTimeSeconds,
+		UseTime:          useTimeMs,
 		IsStream:         isStream,
 		Group:            group,
 		Ip: func() string {
